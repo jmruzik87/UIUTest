@@ -103,26 +103,21 @@ import UIKit
     ///
     @discardableResult func loadForTesting<T>(forNavigation: Bool = false, configure: ((T) -> Void)? = nil) -> T? where T: UIViewController {
         guard let result = self as? T else { return nil }
-
-        if forNavigation {
-            _ = UINavigationController(rootViewController: self)
-        }
-
+        
+        let newRootViewController = forNavigation ? UINavigationController(rootViewController: self) : result
+        
         let window = UIApplication.shared.keyWindow
         window?.removeViewsFromRootViewController()
-
+        
         configure?(result)
-        window?.rootViewController = result
+        window?.rootViewController = newRootViewController
         result.loadViewIfNeeded()
         result.view.layoutIfNeeded()
-
         if forNavigation {
             result.viewWillAppear(false)
             result.viewDidAppear(false)
         }
-
         CATransaction.flush()   // flush pending CoreAnimation operations to display the new view controller
-
         return result
     }
 
